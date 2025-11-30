@@ -1,0 +1,41 @@
+{
+    "name": "cloudora/cloud-storage",
+    "description": "A secure cloud storage application with file management capabilities",
+    "version": "1.0.0",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Cloudora Development Team",
+            "email": "dev@cloudora.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-mysqli": "*",
+        "ext-json": "*",
+        "ext-session": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cloudora\\": "src/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "chmod -R 755 uploads/"
+        ],
+        "post-update-cmd": [
+            "chmod -R 755 uploads/"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

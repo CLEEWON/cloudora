@@ -1,8 +1,5 @@
-<?php 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'cloudora');
+<?php
+require_once __DIR__ . '/../auth/config.php';
 
 class Database {
 
@@ -11,46 +8,52 @@ class Database {
 
     public function __construct()
     {
-        $this->mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-        if($this->mysqli->connect_errno){
-            echo "Gagal konek ke database : " . $this->mysqli->connect_error;
+        // Jika DB_PORT tidak ada di config, pakai default port 3306
+        $port = defined('DB_PORT') ? DB_PORT : 3306;
+
+        $this->mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, $port);
+
+        if ($this->mysqli->connect_errno) {
+            error_log("Database connection failed: " . $this->mysqli->connect_error);
+            die("Connection failed: " . $this->mysqli->connect_error);
         }
+
+        $this->mysqli->set_charset("utf8mb4");
     }
 
     public function table($table)
     {
-
-        $this->query = "SELECT * FROM $table";
+        $this->query = "SELECT * FROM `$table`";
         return $this;
     }
 
     public function where($arr = [])
     {
-        $sql = ' WHERE ';
+        if (empty($arr)) return $this;
 
-        if (count($arr) == 1){
-            foreach ($arr as $key => $value) {
-                $sql .= $key . ' = ' . $value;
-            }
+        $sql = " WHERE ";
+        $conditions = [];
+
+        foreach ($arr as $key => $value) {
+            $value = $this->mysqli->real_escape_string($value);
+            $conditions[] = "`$key` = '$value'";
         }
-        else {
-            foreach ($arr as $key => $value) {
-                $sql .= $key . " = '" . $value . "' AND ";
-            }
-            $sql = substr($sql, 0, -5);
-        }
+
+        $sql .= implode(" AND ", $conditions);
 
         $this->query .= $sql;
         return $this;
     }
 
-    public function get(){
-
+    public function get()
+    {
         $result = $this->mysqli->query($this->query);
-        return $result->fetch_all(MYSQLI_ASSOC);
 
-	// lihat query
-        // echo $this->query;
+        if (!$result) {
+            die("Query error: " . $this->mysqli->error);
+        }
+
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     public function connection()
@@ -58,6 +61,15 @@ class Database {
         return $this->mysqli;
     }
 
+    public function prepare($query)
+    {
+        return $this->mysqli->prepare($query);
+    }
+
+    public function real_escape_string($string)
+    {
+        return $this->mysqli->real_escape_string($string);
+    }
 }
 
 if (!isset($conn)) {

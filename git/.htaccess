@@ -1,0 +1,51 @@
+# Cloudora - Production Security Configuration
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self'  https:; font-src 'self' https://cdn.jsdelivr.net"
+</IfModule>
+
+# Prevent access to sensitive files
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "db/database.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<FilesMatch "\.(env|sql|log|txt)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Prevent access to uploads directory directly
+<Directory "uploads/">
+    Order Deny,Allow
+    Deny from all
+</Directory>
+
+# PHP settings for security
+php_flag display_errors Off
+php_flag display_startup_errors Off
+php_flag log_errors On
+php_flag html_errors Off
+
+# File upload restrictions
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value max_input_time 300
+
+# Rewrite engine for clean URLs (if needed)
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
