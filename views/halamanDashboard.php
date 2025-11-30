@@ -12,7 +12,7 @@ require_once __DIR__ . '/../auth/config.php';
 require_once __DIR__ . '/../db/database.php';
 
 // Ambil semua file user
-$stmt = $conn->prepare("SELECT * FROM files WHERE user_id = ? ORDER BY upload_date DESC");
+$stmt = $conn->prepare("SELECT * FROM files WHERE user_id = ? AND is_deleted = 0 ORDER BY upload_date DESC");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $result = $stmt->get_result();

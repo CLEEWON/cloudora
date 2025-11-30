@@ -12,7 +12,7 @@ require_once __DIR__ . '/../auth/config.php';
 require_once __DIR__ . '/../db/database.php';
 
 // Hitung pemakaian storage user
-$stmt = $conn->prepare("SELECT SUM(file_size) AS used FROM files WHERE user_id = ?");
+$stmt = $conn->prepare("SELECT SUM(file_size) AS used FROM files WHERE user_id = ? AND is_deleted = 0");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $usage = $stmt->get_result()->fetch_assoc();
@@ -23,7 +23,7 @@ $percent = ($used / $total) * 100;
 if ($percent > 100) $percent = 100;
 
 // Ambil semua file user
-$stmtList = $conn->prepare("SELECT * FROM files WHERE user_id = ? ORDER BY upload_date DESC");
+$stmtList = $conn->prepare("SELECT * FROM files WHERE user_id = ? AND is_deleted = 0 ORDER BY upload_date DESC");
 $stmtList->bind_param("i", $_SESSION['user_id']);
 $stmtList->execute();
 $files = $stmtList->get_result()->fetch_all(MYSQLI_ASSOC);

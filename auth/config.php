@@ -31,7 +31,7 @@ define('DB_PORT', getenv('DB_PORT') ?: (defined('DB_PORT_OVERRIDE') ? DB_PORT_OV
 // Application settings
 define('APP_NAME', 'Cloudora');
 define('APP_VERSION', '1.0.0');
-define('UPLOAD_DIR', __DIR__ . '/uploads/');
+define('UPLOAD_DIR', dirname(__DIR__) . '/uploads/');
 define('MAX_FILE_SIZE', 2000 * 1024 * 1024); // 10MB in bytes
 define('ALLOWED_FILE_TYPES', [
     'jpg', 'jpeg', 'png', 'gif', 'pdf', 'txt', 'doc', 'docx',

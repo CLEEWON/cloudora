@@ -122,7 +122,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <td class="cell-action">
 
                         <!-- Restore -->
-                        <form action="../restore_file.php" method="POST" style="display:inline;">
+<form action="../restore_file.php" method="POST" style="display:inline;">
                             <input type="hidden" name="filename" value="<?= htmlspecialchars($file['file_name']) ?>">
                             <button type="submit" class="btn-file" title="Restore">
                                 <i class="bi bi-arrow-counterclockwise"></i>
