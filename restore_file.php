@@ -10,36 +10,57 @@ require_once 'auth/config.php';
 require_once 'db/database.php';
 
 if (!isset($_POST['filename'])) {
-    $_SESSION['error'] = 'Invalid request.';
+    $_SESSION['error'] = 'Request tidak valid.';
     header("Location: views/halamanSampah.php");
     exit;
 }
 
 $filename = basename($_POST['filename']);
+$user_id = $_SESSION['user_id'];
 
-// Path SESUAI struktur GitHub
-$trashPath   = __DIR__ . "/auth/uploads/trash/" . $filename;
-$restorePath = __DIR__ . "/auth/uploads/" . $filename;
+// Validasi file milik user + is_deleted = 1
+$stmt = $conn->prepare("SELECT file_name FROM files WHERE file_name = ? AND user_id = ? AND is_deleted = 1");
+$stmt->bind_param("si", $filename, $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
-// Cek apakah file ada di trash
-if (!file_exists($trashPath)) {
-    $_SESSION['error'] = 'File tidak ditemukan di sampah.';
+if ($result->num_rows === 0) {
+    $_SESSION['error'] = 'File tidak ditemukan atau bukan milik Anda.';
     header("Location: views/halamanSampah.php");
     exit;
 }
 
-// Pindahkan kembali ke folder uploads
+// ---- PATH YANG BENAR ----
+$trashPath   = __DIR__ . "/uploads/trash/" . $filename;
+$restorePath = __DIR__ . "/uploads/" . $filename;
+
+// File harus ada di trash
+if (!file_exists($trashPath)) {
+    $_SESSION['error'] = "File tidak ditemukan di folder sampah. Path: $trashPath";
+    header("Location: views/halamanSampah.php");
+    exit;
+}
+
+// Cek folder writable
+if (!is_writable(dirname($restorePath))) {
+    $_SESSION['error'] = 'Folder uploads tidak bisa ditulis.';
+    header("Location: views/halamanSampah.php");
+    exit;
+}
+
+// Pindahkan file dari trash ke uploads
 if (!rename($trashPath, $restorePath)) {
-    $_SESSION['error'] = 'Gagal memulihkan file.';
+    $err = error_get_last();
+    $_SESSION['error'] = 'Gagal memulihkan file: ' . $err['message'];
     header("Location: views/halamanSampah.php");
     exit;
 }
 
 // Update database
-$stmt = $conn->prepare("UPDATE files SET is_deleted = 0 WHERE file_name = ?");
-$stmt->bind_param("s", $filename);
+$stmt = $conn->prepare("UPDATE files SET is_deleted = 0 WHERE file_name = ? AND user_id = ?");
+$stmt->bind_param("si", $filename, $user_id);
 $stmt->execute();
 
-$_SESSION['success'] = 'File berhasil dipulihkan.';
+$_SESSION['success'] = 'File berhasil dipulihkan!';
 header("Location: views/halamanSampah.php");
 exit;
