@@ -139,6 +139,14 @@ unset($_SESSION['success'], $_SESSION['error']);
                         </button>
                     </form>
 
+                    <!-- VIEW -->
+                    <a href="../view.php?filename=<?= urlencode($file['file_name']) ?>" 
+                    target="_blank" 
+                    class="btn-file btn-view">
+    <i class="bi bi-eye"></i>
+</a>
+
+
                 </div>
             </div>
 
