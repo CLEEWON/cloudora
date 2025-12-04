@@ -126,6 +126,8 @@
       border: 1px solid var(--border);
       margin-bottom: 30px;
       gap: 20px;
+      overflow: visible;
+      position: relative;
     }
 
     .search-box {
@@ -330,4 +332,42 @@
 
 .trash-info p {
     color: #f1c40f;
+}
+
+.profile-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-icon {
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.profile-popup {
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background: white;
+    padding: 15px;
+    width: 220px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 100;
+        pointer-events: auto !important;
+
+}
+
+.profile-popup p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.profile-popup .logout-btn {
+    display: block;
+    padding: 8px 0;
+    text-decoration: none;
+    color: red;
+    font-weight: bold;
 }

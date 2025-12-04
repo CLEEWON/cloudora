@@ -8,6 +8,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+
+
 require_once __DIR__ . '/../auth/config.php';
 require_once __DIR__ . '/../db/database.php';
 
@@ -65,7 +67,24 @@ unset($_SESSION['success'], $_SESSION['error']);
           <i class="bi bi-search"></i>
       </div>
 
-      <i class="bi bi-person-circle profile-icon" title="<?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>"></i>
+<div class="profile-container">
+    <i class="bi bi-person-circle profile-icon" id="profileBtn"></i>
+
+    <div class="profile-popup" id="profilePopup">
+        <p><strong><?= htmlspecialchars($_SESSION['nama']) ?></strong></p>
+        <p>Email: <?= htmlspecialchars($_SESSION['email']) ?></p>
+<div> 
+    <?= htmlspecialchars($_SESSION['created_at'] ?? 'Tidak tersedia'); ?>
+</div>
+
+<div>
+    <?= ($_SESSION['storage_limit'] ?? 0) . ' MB'; ?>
+</div>
+
+        <hr>
+        <a href="../auth/logout.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Keluar</a>
+    </div>
+</div>
   </div>
 
   <div class="welcome">
@@ -184,7 +203,24 @@ document.getElementById("searchInput").addEventListener("keyup", function() {
         card.style.display = text.includes(keyword) ? "" : "none";
     });
 });
+
+// =============== PROFILE POPUP SCRIPT (BENAR) =================
+const btn = document.getElementById("profileBtn");
+const popup = document.getElementById("profilePopup");
+
+btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    popup.style.display = popup.style.display === "block" ? "none" : "block";
+});
+
+// Klik di luar → popup tertutup
+document.addEventListener("click", function(e) {
+    if (!popup.contains(e.target)) {
+        popup.style.display = "none";
+    }
+});
 </script>
+
 
 </body>
 </html>

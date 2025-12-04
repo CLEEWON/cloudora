@@ -26,10 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Verifikasi password
                 if (password_verify($password, $user['password'])) {
                     // Buat session login
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['nama'] = $user['nama'];
-                    $_SESSION['email'] = $user['email'];
-                    $_SESSION['role'] = $user['role'];
+$_SESSION['user_id'] = $user['id'];
+$_SESSION['nama'] = $user['nama'];
+$_SESSION['email'] = $user['email'];
+$_SESSION['role'] = $user['role'];
+$_SESSION['created_at'] = $user['created_at'];
+$_SESSION['storage_limit'] = $user['storage_limit'];
+
 
                     // Arahkan berdasarkan role
                     if ($user['role'] === 'admin') {
