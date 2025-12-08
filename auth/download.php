@@ -1,67 +1,84 @@
 <?php
+// auth/download.php (secure)
 session_start();
+require_once "../config/database.php"; // $conn harus berasal dari sini
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: auth/formLogin.php");
-    exit;
+    http_response_code(401);
+    exit('Silakan login terlebih dahulu.');
 }
 
-require_once __DIR__ . '/auth/config.php';
-require_once __DIR__ . '/db/database.php';
-
-$filename = isset($_GET['filename']) ? basename($_GET['filename']) : '';
-
-if (empty($filename)) {
-    $_SESSION['error'] = 'File tidak valid.';
-    header("Location: views/halamanDashboard.php");
-    exit;
+if (!isset($_GET['id'])) {
+    http_response_code(400);
+    exit('Invalid request.');
 }
 
-// Security: Prevent directory traversal
-if (strpos($filename, '..') !== false || strpos($filename, '/') !== false) {
-    $_SESSION['error'] = 'Akses ditolak.';
-    header("Location: views/halamanDashboard.php");
-    exit;
+$fileId = intval($_GET['id']);
+$userId = intval($_SESSION['user_id']);
+
+// Ambil metadata file
+$query = "SELECT id, user_id, file_name, original_name, file_type FROM files WHERE id = ? AND user_id = ? LIMIT 1";
+$stmt = $conn->prepare($query);
+if (!$stmt) {
+    http_response_code(500);
+    exit('DB error.');
 }
-
-$filePath = UPLOAD_DIR . $filename;
-
-if (!file_exists($filePath)) {
-    $_SESSION['error'] = 'File tidak ditemukan.';
-    header("Location: views/halamanDashboard.php");
-    exit;
-}
-
-// Verify ownership
-$stmt = $conn->prepare("SELECT * FROM files WHERE file_name = ? AND user_id = ?");
-$stmt->bind_param("si", $filename, $_SESSION['user_id']);
+$stmt->bind_param("ii", $fileId, $userId);
 $stmt->execute();
-$file = $stmt->get_result()->fetch_assoc();
+$result = $stmt->get_result();
+$file = $result->fetch_assoc();
+$stmt->close();
 
 if (!$file) {
-    $_SESSION['error'] = 'Anda tidak memiliki akses ke file ini.';
-    header("Location: views/halamanDashboard.php");
-    exit;
+    http_response_code(404);
+    exit('File tidak ditemukan atau Anda tidak berhak mengaksesnya.');
 }
 
-// Update download count
-$stmt = $conn->prepare("UPDATE files SET download_count = download_count + 1 WHERE file_name = ?");
-$stmt->bind_param("s", $filename);
-$stmt->execute();
+// Build path and validate
+$uploadsDir = realpath(__DIR__ . "/../uploads"); // adjust as needed
+if (!$uploadsDir) {
+    http_response_code(500);
+    exit('Server config error.');
+}
+$storagePath = $uploadsDir . DIRECTORY_SEPARATOR . $file['file_name'];
+$real = realpath($storagePath);
+if ($real === false || strpos($real, $uploadsDir) !== 0) {
+    http_response_code(400);
+    exit('Permintaan tidak valid.');
+}
 
-// Log activity (optional)
-$stmt = $conn->prepare("INSERT INTO activity_logs (user_id, action, description) VALUES (?, 'download', ?)");
-$desc = "Downloaded: " . $file['original_name'];
-$stmt->bind_param("is", $_SESSION['user_id'], $desc);
-$stmt->execute();
+if (!is_file($real) || !is_readable($real)) {
+    http_response_code(404);
+    exit('File tidak ditemukan di server.');
+}
 
-// Send file
-header('Content-Type: application/octet-stream');
-header('Content-Disposition: attachment; filename="' . basename($file['original_name']) . '"');
-header('Content-Length: ' . filesize($filePath));
-header('Cache-Control: must-revalidate');
-header('Pragma: public');
+// Determine mime (but force download)
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+$mime = finfo_file($finfo, $real) ?: 'application/octet-stream';
+finfo_close($finfo);
 
-readfile($filePath);
+// Sanitize original_name
+$safeOriginal = str_replace(["\r", "\n", '"'], '', $file['original_name']);
+
+header('X-Content-Type-Options: nosniff');
+header('Content-Type: application/octet-stream'); // force download
+header('Content-Disposition: attachment; filename="'.$safeOriginal.'"');
+header('Content-Length: ' . filesize($real));
+header('Cache-Control: private, max-age=0, must-revalidate');
+
+// Optional: log download event
+// log_download($userId, $fileId, $_SERVER['REMOTE_ADDR']);
+
+$chunkSize = 8 * 1024 * 1024;
+$handle = fopen($real, 'rb');
+if ($handle === false) {
+    http_response_code(500);
+    exit('Gagal membuka file.');
+}
+while (!feof($handle)) {
+    echo fread($handle, $chunkSize);
+    flush();
+}
+fclose($handle);
 exit;
 ?>

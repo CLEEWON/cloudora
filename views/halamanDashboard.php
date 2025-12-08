@@ -44,18 +44,60 @@ unset($_SESSION['success'], $_SESSION['error']);
             <img src="../assets/cloud.png" alt="Cloudora Logo">
             CLOUDORA
         </div>
+
         <div class="menu">
-            <a href="#" class="active"><i class="bi bi-house-door"></i> Beranda</a>
-            <a href="halamanBerbintang.php"><i class="bi bi-star"></i> Berbintang</a>
-            <a href="halamamPenyimpanan.php"><i class="bi bi-hdd"></i> Penyimpanan</a>
-            <a href="halamanSampah.php"><i class="bi bi-trash"></i> Sampah</a>
+
+            <!-- Dashboard -->
+            <a href="halamanDashboard.php" 
+               class="<?= basename($_SERVER['PHP_SELF']) == 'halamanDashboard.php' ? 'active' : '' ?>">
+                <i class="bi bi-house-door"></i> Beranda
+            </a>
+
+            <!-- Berbintang -->
+            <a href="halamanBerbintang.php" 
+               class="<?= basename($_SERVER['PHP_SELF']) == 'halamanBerbintang.php' ? 'active' : '' ?>">
+                <i class="bi bi-star"></i> Berbintang
+            </a>
+
+            <!-- Penyimpanan -->
+            <a href="halamamPenyimpanan.php" 
+               class="<?= basename($_SERVER['PHP_SELF']) == 'halamanPenyimpanan.php' ? 'active' : '' ?>">
+                <i class="bi bi-hdd"></i> Penyimpanan
+            </a>
+
+            <!-- Sampah -->
+            <a href="halamanSampah.php" 
+               class="<?= basename($_SERVER['PHP_SELF']) == 'halamanSampah.php' ? 'active' : '' ?>">
+                <i class="bi bi-trash"></i> Sampah
+            </a>
+
+            <!-- ADMIN ONLY MENU -->
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <hr style="margin: 10px 0; opacity: .3;">
+
+                <a href="manageUsers.php" 
+                   class="<?= basename($_SERVER['PHP_SELF']) == 'manageUsers.php' ? 'active' : '' ?>">
+                    <i class="bi bi-people"></i> Manajemen User
+                </a>
+
+                <a href="manageStorage.php" 
+                   class="<?= basename($_SERVER['PHP_SELF']) == 'manageStorage.php' ? 'active' : '' ?>">
+                    <i class="bi bi-hdd-stack"></i> Manajemen Storage
+                </a>
+
+                <a href="systemLogs.php" 
+                   class="<?= basename($_SERVER['PHP_SELF']) == 'systemLogs.php' ? 'active' : '' ?>">
+                    <i class="bi bi-clipboard-data"></i> System Logs
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 
     <a href="../auth/logout.php" class="logout">
-      <i class="bi bi-box-arrow-left"></i> KELUAR
+        <i class="bi bi-box-arrow-left"></i> KELUAR
     </a>
 </div>
+
 
 <!-- MAIN -->
 <div class="main">
@@ -138,13 +180,15 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <div class="file-actions">
 
                     <!-- DOWNLOAD -->
-                    <a href="../download.php?filename=<?= urlencode($file['file_name']) ?>" class="btn-file btn-download">
-                        <i class="bi bi-download"></i>
-                    </a>
+<a href="../download.php?id=<?= $file['id'] ?>" class="btn-file btn-download">
+    <i class="bi bi-download"></i>
+</a>
+
+
 
                     <!-- DELETE -->
-                    <form action="../delete.php" method="POST" style="display:inline;">
-                        <input type="hidden" name="filename" value="<?= htmlspecialchars($file['file_name']) ?>">
+                    <form action="../controllers/softDeleteFile.php" method="POST" style="display:inline;">
+                        <input type="hidden" name="file_name" value="<?= htmlspecialchars($file['file_name']) ?>">
                         <button class="btn-file btn-delete">
                             <i class="bi bi-trash"></i>
                         </button>
@@ -183,14 +227,21 @@ unset($_SESSION['success'], $_SESSION['error']);
 
 </div>
 
-<!-- Floating Upload -->
-<button class="floating-upload" onclick="document.getElementById('fileInput').click();">
-    <i class="bi bi-plus-lg"></i>
-</button>
+<!-- Floating Upload (Button + Form Menyatu) -->
+<form id="uploadForm" action="../controllers/uploadFile.php" method="POST" enctype="multipart/form-data">
 
-<form action="../upload.php" method="POST" enctype="multipart/form-data" style="display:none;">
-    <input type="file" id="fileInput" name="file" onchange="this.form.submit()">
+    <!-- Tombol Mengambang -->
+    <label for="fileInput" class="floating-upload">
+        <i class="bi bi-plus-lg"></i>
+    </label>
+
+    <!-- Input tersembunyi -->
+    <input type="file" id="fileInput" name="file" style="display:none;"
+           onchange="document.getElementById('uploadForm').submit();">
+
 </form>
+
+
 
 <!-- SEARCH BAR SCRIPT -->
 <script>

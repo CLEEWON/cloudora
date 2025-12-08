@@ -39,26 +39,43 @@ unset($_SESSION['success'], $_SESSION['error']);
 </head>
 <body>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
+ <!-- SIDEBAR -->
+<div class="sidebar">
     <div>
-      <div class="logo">
-        <img src="../assets/cloud.png" alt="Cloudora Logo">
-        CLOUDORA
-      </div>
-<div class="menu">
-    <a href="halamanDashboard.php"><i class="bi bi-house-door"></i> Beranda</a>
-    <a href="halamanBerbintang.php" class="active"><i class="bi bi-star"></i> Berbintang</a>
-    <a href="halamamPenyimpanan.php"><i class="bi bi-hdd"></i> Penyimpanan</a>
-    <a href="halamanSampah.php"><i class="bi bi-trash"></i> Sampah</a>
-</div>
+        <div class="logo">
+            <img src="../assets/cloud.png" alt="Cloudora Logo">
+            CLOUDORA
+        </div>
 
+        <div class="menu">
+            <!-- Dashboard -->
+            <a href="halamanDashboard.php"><i class="bi bi-house-door"></i> Beranda</a>
+
+            <!-- Berbintang -->
+            <a href="#" class="active"><i class="bi bi-star"></i> Berbintang</a>
+
+            <!-- Penyimpanan -->
+            <a href="halamamPenyimpanan.php"><i class="bi bi-hdd"></i> Penyimpanan</a>
+
+            <!-- Sampah -->
+            <a href="halamanSampah.php"><i class="bi bi-trash"></i> Sampah</a>
+
+            <!-- MENU ADMIN -->
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <hr style="margin:10px 0; opacity:0.3;">
+
+                <a href="manageUsers.php"><i class="bi bi-people"></i> Manajemen User</a>
+                <a href="manageStorage.php"><i class="bi bi-hdd-stack"></i> Manajemen Storage</a>
+                <a href="systemLogs.php"><i class="bi bi-clipboard-data"></i> System Logs</a>
+            <?php endif; ?>
+        </div>
     </div>
 
     <a href="../auth/logout.php" class="logout">
-      <i class="bi bi-box-arrow-left"></i> KELUAR
+        <i class="bi bi-box-arrow-left"></i> KELUAR
     </a>
-  </div>                                    
+</div>
+                            
 
   <!-- MAIN CONTENT -->
   <div class="main">

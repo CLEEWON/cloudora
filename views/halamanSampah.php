@@ -51,18 +51,57 @@ unset($_SESSION['success'], $_SESSION['error']);
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
     <div>
         <div class="logo">
             <img src="../assets/cloud.png" alt="Cloudora Logo">
             CLOUDORA
         </div>
+
         <div class="menu">
-            <a href="halamanDashboard.php"><i class="bi bi-house-door"></i> Beranda</a>
-            <a href="halamanBerbintang.php"><i class="bi bi-star"></i> Berbintang</a>
-            <a href="halamamPenyimpanan.php"><i class="bi bi-hdd"></i> Penyimpanan</a>
-            <a href="#" class="active"><i class="bi bi-trash"></i> Sampah</a>
+
+            <a href="halamanDashboard.php"
+               class="<?= basename($_SERVER['PHP_SELF']) == 'halamanDashboard.php' ? 'active' : '' ?>">
+                <i class="bi bi-house-door"></i> Beranda
+            </a>
+
+            <a href="halamanBerbintang.php"
+               class="<?= basename($_SERVER['PHP_SELF']) == 'halamanBerbintang.php' ? 'active' : '' ?>">
+                <i class="bi bi-star"></i> Berbintang
+            </a>
+
+            <a href="halamamPenyimpanan.php"
+               class="<?= basename($_SERVER['PHP_SELF']) == 'halamanPenyimpanan.php' ? 'active' : '' ?>">
+                <i class="bi bi-hdd"></i> Penyimpanan
+            </a>
+
+            <a href="halamanSampah.php"
+               class="<?= basename($_SERVER['PHP_SELF']) == 'halamanSampah.php' ? 'active' : '' ?>">
+                <i class="bi bi-trash"></i> Sampah
+            </a>
+
+            <!-- ADMIN MENU -->
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+
+                <hr style="margin: 12px 0; opacity: .3;">
+
+                <a href="manageUsers.php"
+                   class="<?= basename($_SERVER['PHP_SELF']) == 'manageUsers.php' ? 'active' : '' ?>">
+                    <i class="bi bi-people"></i> Manajemen User
+                </a>
+
+                <a href="manageStorage.php"
+                   class="<?= basename($_SERVER['PHP_SELF']) == 'manageStorage.php' ? 'active' : '' ?>">
+                    <i class="bi bi-hdd-stack"></i> Manajemen Storage
+                </a>
+
+                <a href="systemLogs.php"
+                   class="<?= basename($_SERVER['PHP_SELF']) == 'systemLogs.php' ? 'active' : '' ?>">
+                    <i class="bi bi-clipboard-data"></i> System Logs
+                </a>
+
+            <?php endif; ?>
+
         </div>
     </div>
 
@@ -70,6 +109,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         <i class="bi bi-box-arrow-left"></i> KELUAR
     </a>
 </div>
+
 
 <!-- MAIN -->
 <div class="main">
@@ -121,13 +161,13 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <td class="cell-date"><?= date("d M Y", strtotime($file['upload_date'])) ?></td>
                     <td class="cell-action">
 
-                        <!-- Restore -->
-<form action="../restore_file.php" method="POST" style="display:inline;">
-                            <input type="hidden" name="filename" value="<?= htmlspecialchars($file['file_name']) ?>">
-                            <button type="submit" class="btn-file" title="Restore">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                            </button>
-                        </form>
+<form action="../controllers/restoreFile.php" method="POST" style="display:inline;">
+    <input type="hidden" name="file_name" value="<?= htmlspecialchars($file['file_name']) ?>">
+    <button class="btn-file btn-restore">
+        <i class="bi bi-arrow-counterclockwise"></i>
+    </button>
+</form>
+
 
                         <!-- Delete Permanently -->
                         <form action="../delete_permanent.php" method="POST" style="display:inline;">
