@@ -66,7 +66,6 @@ unset($_SESSION['success'], $_SESSION['error']);
 
                 <a href="manageUsers.php"><i class="bi bi-people"></i> Manajemen User</a>
                 <a href="manageStorage.php"><i class="bi bi-hdd-stack"></i> Manajemen Storage</a>
-                <a href="systemLogs.php"><i class="bi bi-clipboard-data"></i> System Logs</a>
             <?php endif; ?>
         </div>
     </div>
@@ -137,13 +136,19 @@ unset($_SESSION['success'], $_SESSION['error']);
               <?= round($file['file_size']/1024, 2) ?> KB<br>
               <?= date('d M Y', strtotime($file['upload_date'])) ?>
             </div>
-            <div class="file-actions">
-              <a href="../download.php?filename=<?= urlencode($file['file_name']) ?>" class="btn-file btn-download"><i class="bi bi-download"></i> Unduh</a>
-              <form action="../delete.php" method="POST" onsubmit="return confirm('Hapus file ini?');">
-                <input type="hidden" name="filename" value="<?= htmlspecialchars($file['file_name']) ?>">
-                <button type="submit" class="btn-file btn-delete"><i class="bi bi-trash"></i> Hapus</button>
-              </form>
-            </div>
+<div class="file-actions">
+    <form action="../toggle_star.php" method="POST" onsubmit="return confirm('Hapus dari favorit?');">
+        <input type="hidden" name="filename" value="<?= htmlspecialchars($file['file_name']) ?>">
+        <input type="hidden" name="star" value="0">     <!-- Button Unstar -->
+    <form action="../toggle_star.php" method="POST" style="display:inline;">
+        <input type="hidden" name="file_id" value="<?= $file['id'] ?>">
+        <button type="submit" class="btn-file btn-delete">
+            <i class="bi bi-star-fill"></i> Hapus dari Berbintang
+        </button>
+    </form>
+</div>
+
+
           </div>
         <?php endforeach; ?>
       <?php else: ?>

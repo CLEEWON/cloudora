@@ -1,2 +1,2 @@
 <?php
-echo password_hash("kahfi123", PASSWORD_BCRYPT);
+echo password_hash("nur123", PASSWORD_BCRYPT);

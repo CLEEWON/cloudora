@@ -65,7 +65,6 @@ if (!$result) {
 
             <a href="manageUsers.php"><i class="bi bi-people"></i> Manajemen User</a>
             <a class="active" href="manageStorage.php"><i class="bi bi-hdd-stack"></i> Manajemen Storage</a>
-            <a href="systemLogs.php"><i class="bi bi-clipboard-data"></i> System Logs</a>
         </div>
     </div>
 

@@ -67,9 +67,7 @@ if (!$result) {
                 <i class="bi bi-hdd-stack"></i> Manajemen Storage
             </a>
 
-            <a href="systemLogs.php">
-                <i class="bi bi-clipboard-data"></i> System Logs
-            </a>
+
         </div>
     </div>
 
@@ -110,8 +108,9 @@ if (!$result) {
         <td><?= $row['status'] ?></td>
         <td><?= number_format($row['storage_limit']) ?> MB</td>
         <td>
-            <a href="editUser.php?id=<?= $row['id'] ?>" class="btn-edit">Edit</a>
-            <a href="deleteUser.php?id=<?= $row['id'] ?>" class="btn-delete" onclick="return confirm('Yakin ingin menghapus user ini?');">Hapus</a>
+ <a href="admin/editUser.php?id=<?= $row['id'] ?>" class="btn-edit">Edit</a>
+<a href="admin/deleteUser.php?id=<?= $row['id'] ?>" class="btn-delete" onclick="return confirm('Yakin ingin menghapus user ini?');">Hapus</a>
+
         </td>
     </tr>
     <?php endwhile; ?>

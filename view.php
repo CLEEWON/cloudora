@@ -1,21 +1,31 @@
 <?php
-if (!isset($_GET['filename'])) {
-    die("File tidak ditemukan.");
+session_start();
+
+// Cek login
+if (!isset($_SESSION['user_id'])) {
+    die("Unauthorized access");
 }
 
-$filename = basename($_GET['filename']);
-$path = __DIR__ . "/uploads/" . $filename;
-
-if (!file_exists($path)) {
-    die("File tidak ada.");
+// Cek parameter filename
+if (!isset($_GET['filename']) || empty($_GET['filename'])) {
+    die("File tidak ditemukan");
 }
 
-// Deteksi MIME type agar browser bisa menampilkan file
-$mime = mime_content_type($path);
+// Ambil nama file dan bersihkan path
+$filename = basename($_GET['filename']); // untuk keamanan
+$file_path = __DIR__ . "/uploads/" . $filename;
 
+// Cek apakah file ada di server
+if (!file_exists($file_path)) {
+    die("File tidak ditemukan di server. Periksa folder uploads!");
+}
+
+// Set header sesuai tipe file agar bisa preview di browser
+$mime = mime_content_type($file_path);
 header("Content-Type: $mime");
-header("Content-Length: " . filesize($path));
+header("Content-Disposition: inline; filename=\"" . $filename . "\"");
 
-// Tampilkan file ke browser
-readfile($path);
+// Tampilkan file
+readfile($file_path);
 exit;
+?>

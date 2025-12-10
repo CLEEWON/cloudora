@@ -95,10 +95,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <i class="bi bi-hdd-stack"></i> Manajemen Storage
                 </a>
 
-                <a href="systemLogs.php"
-                   class="<?= basename($_SERVER['PHP_SELF']) == 'systemLogs.php' ? 'active' : '' ?>">
-                    <i class="bi bi-clipboard-data"></i> System Logs
-                </a>
+
 
             <?php endif; ?>
 
@@ -170,12 +167,16 @@ unset($_SESSION['success'], $_SESSION['error']);
 
 
                         <!-- Delete Permanently -->
-                        <form action="../delete_permanent.php" method="POST" style="display:inline;">
-                            <input type="hidden" name="filename" value="<?= htmlspecialchars($file['file_name']) ?>">
-                            <button type="submit" class="btn-file btn-delete" title="Hapus Permanen" onclick="return confirm('Hapus permanen file ini?');">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </form>
+<form action="../controllers/permanentDeleteFile.php" method="POST" style="display:inline;">
+    <input type="hidden" name="file_name" value="<?= htmlspecialchars($file['file_name']) ?>">
+    <button type="submit" class="btn-file btn-delete"
+        onclick="return confirm('Hapus permanen file ini?');">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</form>
+
+
+
 
                     </td>
                 </tr>

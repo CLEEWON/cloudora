@@ -4,16 +4,37 @@ require_once "../controllers/b2_authorize.php";
 require_once "../config/backblaze.php";
 require_once "../db/database.php";
 
+// Validasi file upload
 if (!isset($_FILES['file'])) {
     die("No file uploaded.");
 }
 
-// Tahap 1: authorize
+// Pastikan user login
+if (!isset($_SESSION['user_id'])) {
+    die("Unauthorized.");
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Validasi folder_id (boleh null)
+$folder_id = isset($_POST['folder_id']) && $_POST['folder_id'] !== '' && $_POST['folder_id'] !== 'NULL'
+    ? intval($_POST['folder_id'])
+    : null;
+
+// Ambil data file
+$fileName = $_FILES['file']['name'];
+$fileTmp  = $_FILES['file']['tmp_name'];
+$fileSize = $_FILES['file']['size'];
+$fileExt  = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+// =====================
+// Upload ke Backblaze B2
+// =====================
 $auth = b2Authorize();
 $apiUrl = $auth['apiUrl'];
 $authToken = $auth['authorizationToken'];
 
-// Tahap 2: get upload URL
+// Get upload URL
 $ch = curl_init($apiUrl . "/b2api/v2/b2_get_upload_url");
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(["bucketId" => $B2_BUCKET_ID]));
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -25,18 +46,18 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $uploadData = json_decode(curl_exec($ch), true);
 curl_close($ch);
 
-$uploadUrl = $uploadData['uploadUrl'];
+if (!isset($uploadData['uploadUrl'])) {
+    die("Failed to get upload URL from B2.");
+}
+
+$uploadUrl   = $uploadData['uploadUrl'];
 $uploadToken = $uploadData['authorizationToken'];
 
-// Tahap 3: upload file
-$fileName = $_FILES['file']['name'];
-$fileTmp  = $_FILES['file']['tmp_name'];
-$fileSize = $_FILES['file']['size'];
-$fileExt  = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+// Baca file
 $fileData = file_get_contents($fileTmp);
-
 $sha1 = sha1($fileData);
 
+// Upload ke B2
 $ch = curl_init($uploadUrl);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -51,42 +72,55 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $result = json_decode(curl_exec($ch), true);
 curl_close($ch);
 
-$response = curl_exec($ch);
-
-if ($response === false) {
-    echo "cURL Error: " . curl_error($ch);
-    curl_close($ch);
-    exit;
-}
-
-$result = json_decode($response, true);
-curl_close($ch);
-
-// Debug jika API Backblaze kasih error JSON
 if (!isset($result['fileId'])) {
-    echo "<h3>Backblaze API Error:</h3>";
-    echo "<pre>";
+    echo "<pre>Upload Error:\n";
     print_r($result);
     echo "</pre>";
     exit;
 }
 
+$b2_file_id = $result['fileId'];
 
-// Jika sukses lanjut simpan DB
-$fileUrl = $auth['downloadUrl'] . "/file/$B2_BUCKET_NAME/" . rawurlencode($fileName);
+// =====================
+// Simpan salinan lokal untuk preview
+// =====================
+$localDir = __DIR__ . "/../uploads/";
+if (!is_dir($localDir)) mkdir($localDir, 0777, true);
 
-$stmt = $conn->prepare("INSERT INTO files (user_id, original_name, file_name, file_size, file_type) 
-                        VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("issis",
-    $_SESSION['user_id'],
+$localFile = $localDir . basename($fileName);
+
+// Gunakan move_uploaded_file agar file temp dipindahkan ke folder uploads
+if (!move_uploaded_file($fileTmp, $localFile)) {
+    die("Gagal menyimpan salinan file untuk preview.");
+}
+
+// =====================
+// Simpan metadata ke MySQL
+// =====================
+$stmt = $conn->prepare("
+    INSERT INTO files (user_id, folder_id, original_name, file_name, file_size, file_type, b2_file_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+");
+$stmt->bind_param(
+    "iisssis",
+    $user_id,
+    $folder_id,
     $fileName,
-    $result['fileName'],
+    $fileName,
     $fileSize,
-    $fileExt
+    $fileExt,
+    $b2_file_id
 );
-$stmt->execute();
-$stmt->close();
 
-$_SESSION['success'] = "Upload berhasil!";
-header("Location: ../views/halamanDashboard.php");
+if (!$stmt->execute()) {
+    die("DB Error: " . $stmt->error);
+}
+
+$stmt->close();
+$conn->close();
+
+// Redirect ke dashboard
+$_SESSION['success'] = "Upload file berhasil!";
+header("Location: ../views/halamanDashboard.php?folder_id=" . ($folder_id ?? ''));
 exit;
+?>

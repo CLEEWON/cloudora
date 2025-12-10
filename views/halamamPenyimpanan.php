@@ -59,7 +59,7 @@ $files = $stmtList->get_result()->fetch_all(MYSQLI_ASSOC);
             </a>
 
             <a href="halamamPenyimpanan.php"
-               class="<?= basename($_SERVER['PHP_SELF']) == 'halamanPenyimpanan.php' ? 'active' : '' ?>">
+               class="<?= basename($_SERVER['PHP_SELF']) == 'halamamPenyimpanan.php' ? 'active' : '' ?>">
                 <i class="bi bi-hdd"></i> Penyimpanan
             </a>
 
@@ -83,10 +83,7 @@ $files = $stmtList->get_result()->fetch_all(MYSQLI_ASSOC);
                     <i class="bi bi-hdd-stack"></i> Manajemen Storage
                 </a>
 
-                <a href="systemLogs.php"
-                   class="<?= basename($_SERVER['PHP_SELF']) == 'systemLogs.php' ? 'active' : '' ?>">
-                    <i class="bi bi-clipboard-data"></i> System Logs
-                </a>
+
 
             <?php endif; ?>
 

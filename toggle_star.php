@@ -1,45 +1,50 @@
 <?php
-require_once __DIR__ . '/auth/config.php';
-require_once __DIR__ . '/db/database.php';
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Jika belum login
+require_once __DIR__ . '/db/database.php';
+
+// Cek Login
 if (!isset($_SESSION['user_id'])) {
     header("Location: auth/formLogin.php");
     exit;
 }
 
-// Pastikan ada file_name
-if (!isset($_POST['filename'])) {
+// Cek file_id
+if (!isset($_POST['file_id'])) {
     header("Location: views/halamanDashboard.php");
     exit;
 }
 
-$filename = $_POST['filename'];
+$file_id = intval($_POST['file_id']);
+$user_id = $_SESSION['user_id'];
 
-// Cek status bintang saat ini
-$stmt = $conn->prepare("SELECT is_starred FROM files WHERE file_name = ? AND user_id = ?");
-$stmt->bind_param("si", $filename, $_SESSION['user_id']);
+// Cek status saat ini
+$stmt = $conn->prepare("SELECT is_starred FROM files WHERE id = ? AND user_id = ?");
+$stmt->bind_param("ii", $file_id, $user_id);
 $stmt->execute();
 $result = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
 if (!$result) {
     header("Location: views/halamanDashboard.php");
     exit;
 }
 
-$current = $result['is_starred'];
-$newStatus = $current ? 0 : 1;
+$newStatus = $result['is_starred'] ? 0 : 1;
 
-// Update
-$stmt = $conn->prepare("UPDATE files SET is_starred = ? WHERE file_name = ? AND user_id = ?");
-$stmt->bind_param("isi", $newStatus, $filename, $_SESSION['user_id']);
+// Update status
+$stmt = $conn->prepare("UPDATE files SET is_starred = ? WHERE id = ? AND user_id = ?");
+$stmt->bind_param("iii", $newStatus, $file_id, $user_id);
 $stmt->execute();
+$stmt->close();
 
-$_SESSION['success'] = $newStatus ? 'Ditambahkan ke Berbintang ⭐' : 'Dihapus dari Berbintang';
+$_SESSION['success'] = $newStatus
+    ? 'Ditambahkan ke Berbintang ⭐'
+    : 'Dihapus dari Berbintang';
 
-header("Location: views/halamanDashboard.php");
+// Redirect kembali ke folder aktif (jika ada)
+$redirect = isset($_GET['folder_id']) ? $_GET['folder_id'] : '';
+header("Location: views/halamanDashboard.php?folder_id=$redirect");
 exit;

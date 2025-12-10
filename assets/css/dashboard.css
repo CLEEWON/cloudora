@@ -459,3 +459,91 @@
     background: #f0f3f7;
     border-radius: 10px;
 }
+/* Floating Add Folder Button */
+.floating-folder {
+    position: fixed;
+    bottom: 90px;
+    right: 30px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #ffc107;
+    border: none;
+    color: #fff;
+    font-size: 1.6em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.25);
+    transition: .25s;
+}
+.floating-folder:hover {
+    transform: scale(1.12);
+    background: #d39e00;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Modal Box */
+.modal-box {
+    background: #fff;
+    width: 350px;
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+    animation: fadeIn .25s ease-in-out;
+}
+
+.modal-box input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 12px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-cancel, .btn-create {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-cancel {
+    background: #000000;
+}
+.btn-cancel:hover {
+    background: #000000;
+}
+
+.btn-create {
+    background: #ffc107;
+    color: #fff;
+}
+.btn-create:hover {
+    background: #ffc107;
+}
+
+/* Modal Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
