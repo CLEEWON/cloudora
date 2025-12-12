@@ -28,33 +28,33 @@ if (!$file_id) {
     exit;
 }
 
-// Backblaze Auth
-$auth = b2Authorize();
-$apiUrl = $auth['apiUrl'];
-$authToken = $auth['authorizationToken'];
+// // Backblaze Auth
+// $auth = b2Authorize();
+// $apiUrl = $auth['apiUrl'];
+// $authToken = $auth['authorizationToken'];
 
-$deletePayload = json_encode([
-    'fileId'   => $file_id,
-    'fileName' => $file_name
-]);
+// $deletePayload = json_encode([
+//     'fileId'   => $file_id,
+//     'fileName' => $file_name
+// ]);
 
-$ch = curl_init($apiUrl . "/b2api/v2/b2_delete_file_version");
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $deletePayload);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    "Authorization: $authToken",
-    "Content-Type: application/json"
-]);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+// $ch = curl_init($apiUrl . "/b2api/v2/b2_delete_file_version");
+// curl_setopt($ch, CURLOPT_POST, true);
+// curl_setopt($ch, CURLOPT_POSTFIELDS, $deletePayload);
+// curl_setopt($ch, CURLOPT_HTTPHEADER, [
+//     "Authorization: $authToken",
+//     "Content-Type: application/json"
+// ]);
+// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-$response = json_decode(curl_exec($ch), true);
-curl_close($ch);
+// $response = json_decode(curl_exec($ch), true);
+// curl_close($ch);
 
-if (isset($response['status'])) {
-    $_SESSION['error'] = "Gagal hapus Backblaze: " . ($response['message'] ?? 'Unknown error');
-    header("Location: ../views/halamanSampah.php");
-    exit;
-}
+// if (isset($response['status'])) {
+//     $_SESSION['error'] = "Gagal hapus Backblaze: " . ($response['message'] ?? 'Unknown error');
+//     header("Location: ../views/halamanSampah.php");
+//     exit;
+// }
 
 // Hapus database
 $stmt = $conn->prepare("DELETE FROM files WHERE file_name = ?");
